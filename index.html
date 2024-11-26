@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js product Depot</title>
+
+    <link rel="manifest" href="petstore.webmanifest">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <script src="app.js" defer></script>
+    <script src="products.js" defer></script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1 v-text="sitename"></h1>
+            <button v-show="currentPage === 'browse'" v-on:click="currentPage = 'checkout'">🛒 Checkout</button>
+            <button v-show="currentPage === 'checkout'" v-on:click="currentPage = 'browse'">🌐 Browse</button>
+            <hr>
+        </header>
+        <div id="products" v-show="currentPage === 'browse'">
+            <div v-for="product in sortedProducts" class="product" :key="product.id" style="display: flex;gap: 10px">
+                <div style="width: 150px;">
+                    <img v-bind:src="product.picture" v-bind:alt="product.title"
+                        style="width: 150px;border-radius: 10px;">
+                </div>
+                <div style="padding: 5px 0 5px 5px;">
+                    <h3 v-text="product.title" style="margin: 0;"></h3>
+                    <div v-text="product.description" style="color: #777;"></div>
+                    <span v-for="n in product.rating">⭐</span>
+                    <div>AED {{ Number(product.price).toLocaleString() }}</div>
+                    <div v-if="(product.inventory - cartProductCount(product.id)) < 5">Only {{ product.inventory - cartProductCount(product.id) }} left!</div>
+                    <button v-on:click="addToCart(product)">+ Cart</button>
+                </div>
+            </div>
+        </div>
+        <div id="checkout" v-show="currentPage === 'checkout'">
+            <div style="float: left;margin-right: 20px;">
+                <div v-for="product in productsInCart" :key="product.id" style="display: flex;gap: 10px">
+                    <div style="width: 150px;height: 150px;">
+                        <img v-bind:src="product.picture" v-bind:alt="product.title"
+                            style="max-width: 100%;max-height: 100%;border-radius: 10px;">
+                    </div>
+                    <div style="padding: 5px 0 5px 5px;">
+                        <h3 v-text="product.title" style="margin: 0;"></h3>
+                        <div v-text="product.description" style="color: #777;"></div>
+                        <div>AED {{ Number(product.price).toLocaleString() }}</div>
+                        <div>Qty {{ cartProductCount(product.id) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div style="float: left;">
+                <p>
+                    <strong>First Name:</strong>
+                    <input v-model.trim="order.firstName">
+                </p>
+                <p>
+                    <strong>Last Name:</strong>
+                    <input v-model.trim="order.lastName">
+                </p>
+                <p>
+                    <strong>Address:</strong>
+                    <input v-model.trim="order.address">
+                </p>
+                <p>
+                    <strong>City:</strong>
+                    <input v-model.trim="order.city">
+                </p>
+                <p>
+                    <strong>State:</strong>
+                    <select v-model="order.state">
+                        <option disabled value=""></option>
+                        <option v-for="(name, initial) in states" v-bind:value="initial" :key="initial">{{ name }}</option>
+                    </select>
+                </p>
+                <p>
+                    <strong>Zip / Postal Code:</strong>
+                    <input v-model.number="order.zip">
+                </p>
+                <p>
+                    <input type="checkbox" id="gift" value="true" v-model="order.gift" v-bind:true-value="order.sendGift" v-bind:false-value="order.dontSendGift">
+                    <label for="gift">Ship As Gift?</label>
+                </p>
+                <p>
+                    <input type="radio" id="home" value="Home" v-model="order.method">
+                    <label for="home">Home</label>
+                </p>
+                <p>
+                    <input type="radio" id="business" value="Business" v-model="order.method">
+                    <label for="business">Business</label>
+                </p>
+                <p>
+                    <button v-on:click="submitForm">Place Order</button>
+                </p>
+            </div>
+            <div style="float: left; margin-left: 20px;">
+                <h3>Order Information</h3>
+                <p>Name: {{ order.firstName + ' ' + order.lastName }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>City: {{ order.city }}</p>
+                <p>State: {{ order.state }}</p>
+                <p>Zip: {{ order.zip }}</p>
+                <p>Gift? {{ order.gift }}</p>
+                <p>Method: {{ order.method }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
